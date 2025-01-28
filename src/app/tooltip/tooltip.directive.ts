@@ -6,9 +6,8 @@ import {
   Input,
   OnDestroy,
   TemplateRef,
+  ViewContainerRef,
 } from '@angular/core';
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
 import { TooltipComponent } from './tooltip.component';
 
 @Directive({
@@ -19,10 +18,13 @@ export class TooltipDirective implements OnDestroy {
   @Input('tooltipText') text: string | null = null;
   @Input('tooltipTemplate') tooltipTemplate: TemplateRef<any> | null = null;
 
-  private overlayRef: OverlayRef | null = null;
   private tooltipVisible: boolean = false;
+  private tooltipRef: ComponentRef<TooltipComponent> | null = null;
 
-  constructor(private overlay: Overlay, private elementRef: ElementRef) { }
+  constructor(
+    private viewContainerRef: ViewContainerRef,
+    private elementRef: ElementRef
+  ) { }
 
   ngOnDestroy() {
     this.hideTooltip();
@@ -40,50 +42,28 @@ export class TooltipDirective implements OnDestroy {
 
   private showTooltip() {
     if (
-      !this.tooltipVisible &&
-      !this.overlayRef &&
-      (!!this.text || !!this.tooltipTemplate)
+      !this.tooltipVisible
     ) {
-      this.overlayRef = this.overlay.create({
-        positionStrategy: this.overlay
-          .position()
-          .flexibleConnectedTo(this.elementRef)
-          .withPositions([
-            {
-              panelClass: 'tooltip-location-top',
-              originX: 'center',
-              originY: 'top',
-              overlayX: 'center',
-              overlayY: 'bottom',
-            },
-            {
-              panelClass: 'tooltip-location-top',
-              originX: 'center',
-              originY: 'bottom',
-              overlayX: 'center',
-              overlayY: 'top',
-            },
-          ]),
-      });
+      this.tooltipRef = this.viewContainerRef.createComponent(TooltipComponent);
 
-      const tooltipRef: ComponentRef<TooltipComponent> =
-        this.overlayRef.attach(new ComponentPortal(TooltipComponent));
       if (this.text)
-        tooltipRef.instance.text = this.text;
+        this.tooltipRef.instance.text = this.text;
       if (this.tooltipTemplate)
-        tooltipRef.instance.tooltipTemplate = this.tooltipTemplate;
+        this.tooltipRef.instance.tooltipTemplate = this.tooltipTemplate;
 
+      const rect = this.elementRef.nativeElement.getBoundingClientRect();
+      const position = {
+        x: rect.left + window.scrollX,
+        y: rect.top + rect.height + window.scrollY
+      };
+      this.tooltipRef.instance.setPosition(position);
       this.tooltipVisible = true;
     }
   }
 
   private hideTooltip() {
-    if (this.tooltipVisible && this.overlayRef) {
-      this.overlayRef.detach();
-      if (this.overlayRef) {
-        this.overlayRef.dispose();
-        this.overlayRef = null;
-      }
+    if (this.tooltipVisible && this.tooltipRef) {
+      this.tooltipRef.destroy();
       this.tooltipVisible = false;
     }
   }

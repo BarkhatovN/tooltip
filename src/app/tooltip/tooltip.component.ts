@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, TemplateRef } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
@@ -25,4 +24,11 @@ import { NgTemplateOutlet } from '@angular/common';
 export class TooltipComponent {
   @Input() text = '';
   @Input() tooltipTemplate: TemplateRef<any> | null = null;
+  @HostBinding('style.left') left: string = '0px';
+  @HostBinding('style.top') top: string = '0px';
+
+  setPosition({ x, y }: { x: number, y: number }) {
+    this.left = `${x}px`;
+    this.top = `${y}px`;
+  }
 }

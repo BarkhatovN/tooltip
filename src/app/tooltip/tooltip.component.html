@@ -1,9 +1,9 @@
-<div class="tooltip-wrapper">
+<div @tooltip class="tooltip-wrapper">
     <div class="content">
         @if(tooltipTemplate){
-        <ng-container [ngTemplateOutlet]="tooltipTemplate"></ng-container>
+            <ng-container [ngTemplateOutlet]="tooltipTemplate"></ng-container>
         }@else{
-        {{ text }}
+            {{ text }}
         }
     </div>
 </div>
