@@ -226,11 +226,12 @@
         </defs>
       </svg>
       <h1>Hello, {{ title }}</h1>
-      <p>Congratulations! Your app is running. 🎉</p>
+      <p 
+      >Congratulations! Your app is running. 🎉</p>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">
-      <div class="pill-group">
+      <ng-template #listAnchors><div class="pill-group">
         @for (item of [
           { title: 'Explore the Docs', link: 'https://angular.dev' },
           { title: 'Learn with Tutorials', link: 'https://angular.dev/tutorials' },
@@ -240,6 +241,7 @@
         ]; track item.title) {
           <a
             class="pill"
+            [tooltipText]="item.title"
             [href]="item.link"
             target="_blank"
             rel="noopener"
@@ -258,13 +260,17 @@
             </svg>
           </a>
         }
-      </div>
+      </div></ng-template>
+
+      <ng-container [ngTemplateOutlet]="listAnchors"></ng-container>
+      
       <div class="social-links">
         <a
           href="https://github.com/angular/angular"
           aria-label="Github"
           target="_blank"
           rel="noopener"
+          [tooltipTemplate]="listAnchors"
         >
           <svg
             width="25"

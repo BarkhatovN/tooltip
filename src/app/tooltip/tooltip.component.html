@@ -1,0 +1,9 @@
+<div class="tooltip-wrapper">
+    <div class="content">
+        @if(tooltipTemplate){
+        <ng-container [ngTemplateOutlet]="tooltipTemplate"></ng-container>
+        }@else{
+        {{ text }}
+        }
+    </div>
+</div>
