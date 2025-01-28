@@ -3,12 +3,13 @@ import {
   Directive,
   ElementRef,
   HostListener,
+  Injector,
   Input,
   OnDestroy,
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
-import { TooltipComponent } from './tooltip.component';
+import { POSITION_INJECTION_TOKEN, TooltipComponent } from './tooltip.component';
 
 @Directive({
   selector: '[tooltipText], [tooltipTemplate]',
@@ -44,19 +45,22 @@ export class TooltipDirective implements OnDestroy {
     if (
       !this.tooltipVisible
     ) {
-      this.tooltipRef = this.viewContainerRef.createComponent(TooltipComponent);
+      const rect = this.elementRef.nativeElement.getBoundingClientRect();
+
+      const position = {
+        x: rect.left + window.scrollX,
+        y: rect.top + rect.height + window.scrollY
+      };
+
+      const injector = Injector.create({ providers: [{ provide: POSITION_INJECTION_TOKEN, useValue: position }] });
+
+      this.tooltipRef = this.viewContainerRef.createComponent(TooltipComponent, { injector });
 
       if (this.text)
         this.tooltipRef.instance.text = this.text;
       if (this.tooltipTemplate)
         this.tooltipRef.instance.tooltipTemplate = this.tooltipTemplate;
 
-      const rect = this.elementRef.nativeElement.getBoundingClientRect();
-      const position = {
-        x: rect.left + window.scrollX,
-        y: rect.top + rect.height + window.scrollY
-      };
-      this.tooltipRef.instance.setPosition(position);
       this.tooltipVisible = true;
     }
   }
